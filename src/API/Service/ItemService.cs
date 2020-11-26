@@ -1,5 +1,6 @@
 ﻿using API.Model;
 using API.Repository;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,16 +23,18 @@ namespace API.Service
       _moedaRepository = moedaRepository;
     }
 
-    public async Task GetItem(Item item)
+    public async Task PostCSV(Item item)
     {
       var moeda = await _moedaRepository.Get(item.DataInicio, item.DataFim).ConfigureAwait(false);
 
-      var result = moeda.Select(x => new MoedaCotacao(x));
-      foreach (var r in result.AsParallel())
+      var result = new List<MoedaCotacao>();
+      foreach (var m in moeda.AsParallel())
       {
-        r.Codigo = (await _deParaRepository.Get(r.Id).ConfigureAwait(false))?.CodCotacao ?? 0;
+        var codigo = (await _deParaRepository.Get(m.Id).ConfigureAwait(false))?.CodCotacao ?? 0;
 
-        r.Valor = (await _cotacaoRepository.Get(r.Codigo, r.Data).ConfigureAwait(false))?.Valor ?? 0;
+        var valor = (await _cotacaoRepository.Get(codigo, m.Data).ConfigureAwait(false))?.Valor ?? 0;
+
+        result.Add(new MoedaCotacao(m, codigo, valor));
       }
 
       await _cSVService.PostMoedaCotacao(result).ConfigureAwait(false);

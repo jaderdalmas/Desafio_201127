@@ -4,7 +4,11 @@ namespace API.Model
   {
     public MoedaCotacao() : base() { }
 
-    public MoedaCotacao(Moeda moeda) : base(moeda.Id, moeda.Data) { }
+    public MoedaCotacao(Moeda moeda, int codigo, decimal valor) : base(moeda.Id, moeda.Data)
+    {
+      Codigo = codigo;
+      Valor = valor;
+    }
 
     public int Codigo { get; set; }
 

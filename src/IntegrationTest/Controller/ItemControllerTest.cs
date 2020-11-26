@@ -242,7 +242,7 @@ namespace IntegrationTest.Controller
       Assert.NotEmpty(result);
 
       var item = JsonSerializer.Deserialize<Item>(result);
-      Service.GetItem(item).Wait();
+      Service.PostCSV(item).Wait();
     }
   }
 }

@@ -5,6 +5,6 @@ namespace API.Service
 {
   public interface IItemService
   {
-    Task GetItem(Item item);
+    Task PostCSV(Item item);
   }
 }
