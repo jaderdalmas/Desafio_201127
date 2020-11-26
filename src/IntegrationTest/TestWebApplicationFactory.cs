@@ -5,17 +5,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace IntegrationTest
 {
-    [ExcludeFromCodeCoverage]
-    public class TestApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+  [ExcludeFromCodeCoverage]
+  public class TestApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+  {
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            if (builder is null) return;
-            builder.ConfigureAppConfiguration((builderContext, config) =>
-            {
-                config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                      .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
-            });
-        }
+      if (builder is null) return;
+      builder.ConfigureAppConfiguration((builderContext, config) =>
+      {
+        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+      });
     }
+  }
 }

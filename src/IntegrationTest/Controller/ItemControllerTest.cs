@@ -21,6 +21,45 @@ namespace IntegrationTest.Controller
     }
 
     [Fact]
+    public async Task Post_Null()
+    {
+      // Arrange
+      var client = _factory.CreateClient();
+      List<Item> request = null;
+
+      // Act
+      var response = await client.PostAsync("/Item", request.AsContent());
+
+      // Assert
+      Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+      var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      Assert.NotEmpty(result);
+
+      var item = JsonSerializer.Deserialize<ProblemDetails>(result);
+      Assert.NotEmpty(item.Title);
+      Assert.NotEmpty(item.Type);
+      Assert.NotEmpty(item.Extensions);
+    }
+
+    [Fact]
+    public async Task Post_NoContent()
+    {
+      // Arrange
+      var client = _factory.CreateClient();
+      var request = new List<Item>();
+
+      // Act
+      var response = await client.PostAsync("/Item", request.AsContent());
+
+      // Assert
+      Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+      var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      Assert.Empty(result);
+    }
+
+    [Fact]
     public async Task Post_BadRequest()
     {
       // Arrange
@@ -93,6 +132,69 @@ namespace IntegrationTest.Controller
 
       var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
       Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task Get_NotFound()
+    {
+      // Arrange
+      var client = _factory.CreateClient();
+
+      // Act
+      var response = await client.GetAsync("/Item");
+
+      // Assert
+      Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+      var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      Assert.NotEmpty(result);
+
+      var item = JsonSerializer.Deserialize<ProblemDetails>(result);
+      Assert.NotEmpty(item.Title);
+      Assert.NotEmpty(item.Type);
+      Assert.NotEmpty(item.Extensions);
+    }
+
+    [Fact]
+    public async Task Get()
+    {
+      // Arrange
+      var client = _factory.CreateClient();
+
+      var request = new List<Item>() {
+        new Item(){
+          Moeda = "USD",
+          DataInicio = DateTime.Parse("2010-01-01"),
+          DataFim = DateTime.Parse("2010-12-01")
+        },
+        new Item()
+        {
+          Moeda = "EUR",
+          DataInicio = DateTime.Parse("2020-01-01"),
+          DataFim = DateTime.Parse("2010-12-01")
+        },
+        new Item()
+        {
+          Moeda = "JPY",
+          DataInicio = DateTime.Parse("2000-03-11"),
+          DataFim = DateTime.Parse("2000-03-30")
+        }
+      };
+      _ = await client.PostAsync("/Item", request.AsContent());
+
+      // Act
+      var response = await client.GetAsync("/Item");
+
+      // Assert
+      Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+      var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      Assert.NotEmpty(result);
+
+      var item = JsonSerializer.Deserialize<Item>(result);
+      Assert.Equal(request[2].Moeda, item.Moeda);
+      Assert.Equal(request[2].DataInicio, item.DataInicio);
+      Assert.Equal(request[2].DataFim, item.DataFim);
     }
   }
 }
