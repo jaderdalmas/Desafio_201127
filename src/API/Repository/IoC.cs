@@ -6,8 +6,10 @@ namespace API.Repository
   {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
+      services.AddSingleton<ICotacaoRepository, CotacaoRepository>();
       services.AddSingleton<IDeParaRepository, DeParaRepository>();
       services.AddSingleton<IItemRepository, ItemRepository>();
+      services.AddSingleton<IMoedaRepository, MoedaRepository>();
 
       return services;
     }

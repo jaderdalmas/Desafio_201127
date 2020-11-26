@@ -1,5 +1,6 @@
 using Api.StartUp;
 using API.Repository;
+using API.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,7 @@ namespace API
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddControllers();
+      services.AddServices();
       services.AddRepositories();
 
       services.AddSwagger();

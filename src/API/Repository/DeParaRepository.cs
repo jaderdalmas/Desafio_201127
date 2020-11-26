@@ -1,5 +1,6 @@
 ﻿using API.Model;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Repository
@@ -79,9 +80,10 @@ namespace API.Repository
       new DePara("ZWL", 31)
     };
 
-    public Task<IEnumerable<DePara>> GetAll()
-    {
-      return (Task<IEnumerable<DePara>>)db;
-    }
+    public Task<IEnumerable<DePara>> GetAll() => Task.FromResult((IEnumerable<DePara>)db);
+
+    public Task<DePara> Get(string moeda) => Task.FromResult(db.FirstOrDefault(x => x.IdMoeda == moeda));
+
+    public Task<IEnumerable<DePara>> Get(IEnumerable<string> moedas) => Task.FromResult(db.Where(x => moedas.Contains(x.IdMoeda)));
   }
 }
