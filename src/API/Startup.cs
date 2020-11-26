@@ -1,3 +1,5 @@
+using Api.StartUp;
+using API.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,10 @@ namespace API
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddControllers();
+      services.AddRepositories();
+
+      services.AddSwagger();
+      services.AddHealthCheck();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -29,9 +35,13 @@ namespace API
         app.UseDeveloperExceptionPage();
       }
 
+      app.ConfigureSwagger();
+      app.ConfigureHealthCheck();
+
       app.UseHttpsRedirection();
       app.UseRouting();
       app.UseAuthorization();
+
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllers();
