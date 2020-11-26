@@ -1,7 +1,9 @@
 using API;
 using API.Extension;
 using API.Model;
+using API.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -15,9 +17,15 @@ namespace IntegrationTest.Controller
   {
     private readonly TestApplicationFactory<Startup> _factory;
 
+    private readonly IServiceScope _serviceScope;
+    private IServiceProvider ServiceProvider => _serviceScope.ServiceProvider;
+
+    private IItemService Service => ServiceProvider.GetService<IItemService>();
+
     public ItemControllerTest(TestApplicationFactory<Startup> factory)
     {
       _factory = factory;
+      _serviceScope = factory.Services.CreateScope();
     }
 
     [Fact]
@@ -195,6 +203,46 @@ namespace IntegrationTest.Controller
       Assert.Equal(request[2].Moeda, item.Moeda);
       Assert.Equal(request[2].DataInicio, item.DataInicio);
       Assert.Equal(request[2].DataFim, item.DataFim);
+    }
+
+    [Fact]
+    public async Task GetItem()
+    {
+      // Arrange
+      var client = _factory.CreateClient();
+
+      var request = new List<Item>() {
+        new Item(){
+          Moeda = "USD",
+          DataInicio = DateTime.Parse("2010-01-01"),
+          DataFim = DateTime.Parse("2010-12-01")
+        },
+        new Item()
+        {
+          Moeda = "EUR",
+          DataInicio = DateTime.Parse("2020-01-01"),
+          DataFim = DateTime.Parse("2020-12-01")
+        },
+        new Item()
+        {
+          Moeda = "JPY",
+          DataInicio = DateTime.Parse("2000-03-11"),
+          DataFim = DateTime.Parse("2000-03-30")
+        }
+      };
+      _ = await client.PostAsync("/Item", request.AsContent());
+
+      // Act
+      var response = await client.GetAsync("/Item");
+
+      // Assert
+      Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+      var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+      Assert.NotEmpty(result);
+
+      var item = JsonSerializer.Deserialize<Item>(result);
+      Service.GetItem(item).Wait();
     }
   }
 }
