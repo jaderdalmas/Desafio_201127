@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace API.Service
 {
+  /// <inheritdoc/>
   public class ItemService : IItemService
   {
     private readonly ICSVService _cSVService;
@@ -14,6 +15,7 @@ namespace API.Service
     private readonly IDeParaRepository _deParaRepository;
     private readonly IMoedaRepository _moedaRepository;
 
+    /// <inheritdoc/>
     public ItemService(ICSVService cSVService, ICotacaoRepository cotacaoRepository, IDeParaRepository deParaRepository, IMoedaRepository moedaRepository)
     {
       _cSVService = cSVService;
@@ -23,6 +25,7 @@ namespace API.Service
       _moedaRepository = moedaRepository;
     }
 
+    /// <inheritdoc/>
     public async Task PostCSV(Item item)
     {
       var moeda = await _moedaRepository.Get(item.DataInicio, item.DataFim).ConfigureAwait(false);
